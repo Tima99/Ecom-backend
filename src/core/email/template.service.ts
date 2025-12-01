@@ -41,4 +41,13 @@ export class TemplateService {
       currentYear: new Date().getFullYear(),
     });
   }
+
+  renderTwoFactorOtpTemplate(otp: string): string {
+    return this.renderTemplate('two-factor-otp', {
+      appName: 'Ecommerce App',
+      otp,
+      expiryMinutes: 10,
+      currentYear: new Date().getFullYear(),
+    });
+  }
 }

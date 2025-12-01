@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Two-Factor Authentication Code</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    "
+  >
+    <div
+      style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 30px;
+        text-align: center;
+        border-radius: 10px 10px 0 0;
+      "
+    >
+      <h1 style="color: white; margin: 0; font-size: 28px">{{appName}}</h1>
+      <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px">Two-Factor Authentication</p>
+    </div>
+
+    <div
+      style="
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <h2 style="color: #333; margin-bottom: 20px">Security Code Required</h2>
+
+      <p style="margin-bottom: 30px; font-size: 16px">
+        We've received a login attempt for your account. Please use the following code to complete
+        your authentication:
+      </p>
+
+      <div
+        style="
+          background: #f8f9fa;
+          border: 2px dashed #667eea;
+          border-radius: 8px;
+          padding: 30px;
+          text-align: center;
+          margin: 30px 0;
+        "
+      >
+        <div
+          style="
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+          "
+        >
+          {{otp}}
+        </div>
+      </div>
+
+      <div
+        style="
+          background: #fff3cd;
+          border: 1px solid #ffeaa7;
+          border-radius: 5px;
+          padding: 15px;
+          margin: 20px 0;
+        "
+      >
+        <p style="margin: 0; color: #856404; font-size: 14px">
+          <strong>⚠️ Important:</strong> This code will expire in {{expiryMinutes}} minutes. If you
+          didn't request this code, please ignore this email and consider changing your password.
+        </p>
+      </div>
+
+      <p style="margin-top: 30px; font-size: 14px; color: #666">
+        For your security, never share this code with anyone. {{appName}} will never ask for your
+        authentication codes via email or phone.
+      </p>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; padding: 20px; color: #888; font-size: 12px">
+      <p>© {{currentYear}} {{appName}}. All rights reserved.</p>
+      <p>This is an automated message, please do not reply to this email.</p>
+    </div>
+  </body>
+</html>

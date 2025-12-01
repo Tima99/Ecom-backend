@@ -21,4 +21,10 @@ export class EmailService {
 
     await this.emailAdapter.sendEmail(email, 'Welcome to Ecommerce App!', htmlContent);
   }
+
+  async sendTwoFactorOtp(email: string, otp: string) {
+    const htmlContent = this.templateService.renderTwoFactorOtpTemplate(otp);
+
+    await this.emailAdapter.sendEmail(email, 'Two-Factor Authentication Code', htmlContent);
+  }
 }
