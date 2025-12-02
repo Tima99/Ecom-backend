@@ -36,15 +36,32 @@ export class AuthService {
     const sessionId = this.generateSessionId();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    await this.userSessionRepository.create({
-      userId: user._id,
-      sessionId,
-      deviceInfo: deviceInfo.deviceInfo,
-      ipAddress: deviceInfo.ipAddress,
-      userAgent: deviceInfo.userAgent,
-      expiresAt,
-      lastAccessedAt: new Date(),
-    });
+    // Check for existing session from same device
+    const existingSession = await this.userSessionRepository.findExistingDeviceSession(
+      user._id,
+      deviceInfo.deviceInfo,
+      deviceInfo.userAgent,
+    );
+
+    if (existingSession) {
+      // Update existing session with new sessionId and extend expiry
+      await this.userSessionRepository.updateExistingSession(
+        existingSession.sessionId,
+        sessionId,
+        deviceInfo.ipAddress,
+      );
+    } else {
+      // Create new session for new device
+      await this.userSessionRepository.create({
+        userId: user._id,
+        sessionId,
+        deviceInfo: deviceInfo.deviceInfo,
+        ipAddress: deviceInfo.ipAddress,
+        userAgent: deviceInfo.userAgent,
+        expiresAt,
+        lastAccessedAt: new Date(),
+      });
+    }
 
     await this.userRepository.updateLastLogin(user._id);
 

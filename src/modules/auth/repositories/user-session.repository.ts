@@ -42,4 +42,33 @@ export class UserSessionRepository {
       { lastAccessedAt: new Date() }
     );
   }
+
+  async findExistingDeviceSession(
+    userId: Types.ObjectId,
+    deviceInfo: string,
+    userAgent: string,
+  ): Promise<UserSessionDocument | null> {
+    return this.userSessionModel.findOne({
+      userId,
+      deviceInfo,
+      userAgent,
+      isActive: true,
+    });
+  }
+
+  async updateExistingSession(
+    sessionId: string,
+    newSessionId: string,
+    ipAddress: string,
+  ): Promise<void> {
+    await this.userSessionModel.updateOne(
+      { sessionId },
+      {
+        sessionId: newSessionId,
+        ipAddress,
+        lastAccessedAt: new Date(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      }
+    );
+  }
 }
