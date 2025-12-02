@@ -127,22 +127,53 @@ export class AuthService {
     };
   }
 
-  async toggleTwoFactor(userId: Types.ObjectId, toggleDto: ToggleTwoFactorDto) {
+  async requestTwoFactorToggle(userId: Types.ObjectId) {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new BadRequestException('User not found');
     }
 
-    // Verify OTP before enabling/disabling 2FA
+    const otp = otpGenerator.generate(6, {
+      digits: true,
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+
     const sessionId = this.generateSessionId();
-    const storedOtp = await this.twoFactorAuthRepository.create({
+    await this.twoFactorAuthRepository.create({
       userId,
-      otp: toggleDto.otp,
+      otp,
       expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       sessionId,
     });
 
-    await this.emailService.sendTwoFactorOtp(user.email, toggleDto.otp);
+    await this.emailService.sendTwoFactorOtp(user.email, otp);
+
+    return {
+      sessionId,
+      message: 'OTP sent to your email for 2FA toggle',
+    };
+  }
+
+  async confirmTwoFactorToggle(userId: Types.ObjectId, toggleDto: ToggleTwoFactorDto) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Find and verify the OTP
+    const twoFactorAuth = await this.twoFactorAuthRepository.findByUserIdAndSessionId(
+      userId,
+      toggleDto.sessionId,
+    );
+
+    if (!twoFactorAuth || twoFactorAuth.otp !== toggleDto.otp) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
+    // Mark OTP as verified
+    await this.twoFactorAuthRepository.verifyOtp(userId, toggleDto.sessionId, toggleDto.otp);
 
     const newStatus = !user.twoFactorEnabled;
     await this.userRepository.updateTwoFactorStatus(userId, newStatus);

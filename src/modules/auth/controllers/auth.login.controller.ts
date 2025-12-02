@@ -26,9 +26,15 @@ export class AuthLoginController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('toggle-2fa')
-  async toggleTwoFactor(@Body() toggleDto: ToggleTwoFactorDto, @CurrentUser() user: any) {
-    return this.authService.toggleTwoFactor(user.userId, toggleDto);
+  @Post('request-2fa-toggle')
+  async requestTwoFactorToggle(@CurrentUser() user: any) {
+    return this.authService.requestTwoFactorToggle(user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('confirm-2fa-toggle')
+  async confirmTwoFactorToggle(@Body() toggleDto: ToggleTwoFactorDto, @CurrentUser() user: any) {
+    return this.authService.confirmTwoFactorToggle(user.userId, toggleDto);
   }
 
   @UseGuards(JwtAuthGuard)

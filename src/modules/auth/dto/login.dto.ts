@@ -24,5 +24,9 @@ export class VerifyTwoFactorDto {
 export class ToggleTwoFactorDto {
   @IsString()
   @IsNotEmpty()
+  sessionId: string;
+
+  @IsString()
+  @IsNotEmpty()
   otp: string;
 }
