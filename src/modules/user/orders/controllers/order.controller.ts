@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { OrderService } from '../services/order.service';
-import { CreateOrderDto, ProcessPaymentDto } from '../dto/order.dto';
+import { CreateOrderDto, ProcessPaymentDto, CreatePaymentIntentDto } from '../dto/order.dto';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../../auth/decorators/current-user.decorator';
 
@@ -19,13 +19,17 @@ export class OrderController {
     return this.orderService.createOrder(user.userId, createOrderDto);
   }
 
+  @Post('payment-intent')
+  @ApiOperation({ summary: 'Create payment intent for order' })
+  @ApiResponse({ status: 201, description: 'Payment intent created' })
+  async createPaymentIntent(@Body() createPaymentIntentDto: CreatePaymentIntentDto) {
+    return this.orderService.createPaymentIntent(createPaymentIntentDto);
+  }
+
   @Post(':orderId/payment')
   @ApiOperation({ summary: 'Process payment for order' })
   @ApiResponse({ status: 200, description: 'Payment processed' })
-  async processPayment(
-    @Param('orderId') orderId: string,
-    @Body() paymentDto: ProcessPaymentDto,
-  ) {
+  async processPayment(@Param('orderId') orderId: string, @Body() paymentDto: ProcessPaymentDto) {
     return this.orderService.processPayment(orderId, paymentDto);
   }
 

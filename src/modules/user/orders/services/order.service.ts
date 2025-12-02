@@ -3,7 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Order, OrderDocument, OrderStatus, PaymentStatus } from '../schemas/order.schema';
 import { Cart, CartDocument } from '../../cart/schemas/cart.schema';
-import { CreateOrderDto, ProcessPaymentDto } from '../dto/order.dto';
+import { CreateOrderDto, ProcessPaymentDto, CreatePaymentIntentDto } from '../dto/order.dto';
+import { StripePaymentService, PaymentIntent } from '../../../../core/payment/stripe-payment.service';
 
 @Injectable()
 export class OrderService {
@@ -12,17 +13,21 @@ export class OrderService {
     private orderModel: Model<OrderDocument>,
     @InjectModel(Cart.name)
     private cartModel: Model<CartDocument>,
+    private stripePaymentService: StripePaymentService,
   ) {}
 
-  async createOrder(userId: Types.ObjectId, createOrderDto: CreateOrderDto): Promise<OrderDocument> {
+  async createOrder(
+    userId: Types.ObjectId,
+    createOrderDto: CreateOrderDto,
+  ): Promise<OrderDocument> {
     const cart = await this.cartModel.findOne({ userId });
-    
+
     if (!cart || cart.items.length === 0) {
       throw new BadRequestException('Cart is empty');
     }
 
     const orderNumber = this.generateOrderNumber();
-    
+
     const order = await this.orderModel.create({
       userId,
       orderNumber,
@@ -39,20 +44,34 @@ export class OrderService {
     return order;
   }
 
-  async processPayment(orderId: string, paymentDto: ProcessPaymentDto): Promise<OrderDocument> {
-    const order = await this.orderModel.findById(orderId);
-    
+  async createPaymentIntent(createPaymentIntentDto: CreatePaymentIntentDto): Promise<PaymentIntent> {
+    const order = await this.orderModel.findById(createPaymentIntentDto.orderId);
+
     if (!order) {
       throw new NotFoundException('Order not found');
     }
 
-    // Simulate payment processing
-    const paymentSuccess = await this.simulatePayment(order.totalAmount, paymentDto);
-    
-    if (paymentSuccess) {
+    if (order.paymentStatus !== PaymentStatus.PENDING) {
+      throw new BadRequestException('Order payment already processed');
+    }
+
+    return this.stripePaymentService.createPaymentIntent(order.totalAmount);
+  }
+
+  async processPayment(orderId: string, paymentDto: ProcessPaymentDto): Promise<OrderDocument> {
+    const order = await this.orderModel.findById(orderId);
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Confirm payment with Stripe
+    const paymentResult = await this.stripePaymentService.confirmPayment(paymentDto.paymentIntentId);
+
+    if (paymentResult.success && paymentResult.paymentId) {
       order.paymentStatus = PaymentStatus.COMPLETED;
       order.status = OrderStatus.CONFIRMED;
-      order.paymentId = `pay_${Date.now()}`;
+      order.paymentId = paymentResult.paymentId;
     } else {
       order.paymentStatus = PaymentStatus.FAILED;
     }
@@ -68,7 +87,7 @@ export class OrderService {
 
   async getOrderById(orderId: string, userId: Types.ObjectId): Promise<OrderDocument> {
     const order = await this.orderModel.findOne({ _id: orderId, userId });
-    
+
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -77,11 +96,7 @@ export class OrderService {
   }
 
   async updateOrderStatus(orderId: string, status: OrderStatus): Promise<OrderDocument> {
-    const order = await this.orderModel.findByIdAndUpdate(
-      orderId,
-      { status },
-      { new: true }
-    );
+    const order = await this.orderModel.findByIdAndUpdate(orderId, { status }, { new: true });
 
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -94,7 +109,7 @@ export class OrderService {
     const order = await this.orderModel.findByIdAndUpdate(
       orderId,
       { trackingNumber, status: OrderStatus.SHIPPED },
-      { new: true }
+      { new: true },
     );
 
     if (!order) {
@@ -108,11 +123,5 @@ export class OrderService {
     return `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
   }
 
-  private async simulatePayment(amount: number, paymentDto: ProcessPaymentDto): Promise<boolean> {
-    // Simulate payment processing delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // 90% success rate for simulation
-    return Math.random() > 0.1;
-  }
+
 }

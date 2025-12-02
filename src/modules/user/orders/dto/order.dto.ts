@@ -9,12 +9,13 @@ export class CreateOrderDto {
 }
 
 export class ProcessPaymentDto {
-  @ApiProperty({ description: 'Payment method', example: 'stripe' })
+  @ApiProperty({ description: 'Payment intent ID from Stripe', example: 'pi_1234567890' })
   @IsString()
-  paymentMethod: string;
+  paymentIntentId: string;
+}
 
-  @ApiPropertyOptional({ description: 'Payment token from frontend' })
-  @IsOptional()
+export class CreatePaymentIntentDto {
+  @ApiProperty({ description: 'Order ID', example: '507f1f77bcf86cd799439011' })
   @IsString()
-  paymentToken?: string;
+  orderId: string;
 }
