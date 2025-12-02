@@ -9,6 +9,7 @@ import { UserSessionRepository } from '../repositories/user-session.repository';
 import { TwoFactorAuthRepository } from '../repositories/two-factor-auth.repository';
 import { LoginDto, VerifyTwoFactorDto, ToggleTwoFactorDto } from '../dto/login.dto';
 import { EmailService } from '../../../core/email/email.service';
+import { JwtPayload } from '../../../types/jwt.types';
 
 @Injectable()
 export class AuthService {
@@ -48,8 +49,13 @@ export class AuthService {
     await this.userRepository.updateLastLogin(user._id);
 
     if (user.twoFactorEnabled) {
-      const otp = otpGenerator.generate(6, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
-      
+      const otp = otpGenerator.generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        upperCaseAlphabets: false,
+        specialChars: false,
+      });
+
       await this.twoFactorAuthRepository.create({
         userId: user._id,
         otp,
@@ -66,7 +72,7 @@ export class AuthService {
       };
     }
 
-    const token = this.generateJwtToken(user._id, sessionId);
+    const token = this.generateJwtToken(user._id, sessionId, user.email);
     return {
       requiresTwoFactor: false,
       token,
@@ -90,12 +96,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired OTP');
     }
 
-    const token = this.generateJwtToken(session.userId, verifyDto.sessionId);
     const user = await this.userRepository.findById(session.userId);
 
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
+
+    const token = this.generateJwtToken(session.userId, verifyDto.sessionId, user.email);
 
     return {
       token,
@@ -147,10 +154,13 @@ export class AuthService {
     return `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private generateJwtToken(userId: Types.ObjectId, sessionId: string): string {
-    return this.jwtService.sign(
-      { sub: userId, sessionId },
-      { expiresIn: '7d' },
-    );
+  private generateJwtToken(userId: Types.ObjectId, sessionId: string, email: string): string {
+    const payload: JwtPayload = {
+      userId: userId.toString(),
+      sessionId,
+      email,
+    };
+
+    return this.jwtService.sign(payload, { expiresIn: '7d' });
   }
 }

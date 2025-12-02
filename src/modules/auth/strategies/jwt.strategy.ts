@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { Types } from 'mongoose';
 import { UserRepository } from '../repositories/user.repository';
 import { UserSessionRepository } from '../repositories/user-session.repository';
+import { JwtPayload, AuthenticatedUser } from '../../../types/jwt.types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -25,8 +26,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    const userId = new Types.ObjectId(payload.sub);
+  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
+    const userId = new Types.ObjectId(payload.userId);
     const sessionId = payload.sessionId;
 
     // Verify user exists

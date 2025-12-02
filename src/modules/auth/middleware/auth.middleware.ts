@@ -5,14 +5,10 @@ import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import { UserRepository } from '../repositories/user.repository';
 import { UserSessionRepository } from '../repositories/user-session.repository';
+import { JwtPayload, AuthenticatedUser } from '../../../types/jwt.types';
 
 interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: Types.ObjectId;
-    email: string;
-    sessionId: string;
-    twoFactorEnabled: boolean;
-  };
+  user?: AuthenticatedUser;
 }
 
 @Injectable()
@@ -38,7 +34,7 @@ export class AuthMiddleware implements NestMiddleware {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
 
-      const userId = new Types.ObjectId(payload.sub);
+      const userId = new Types.ObjectId(payload.userId);
       const sessionId = payload.sessionId;
 
       // Verify user exists
