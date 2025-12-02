@@ -64,11 +64,11 @@ export class FileUploadController {
     return this.fileUploadService.getFile(id);
   }
 
-  @Get('folder/*')
+  @Get('folder/*path')
   @ApiOperation({ summary: 'Get files by folder path' })
   @ApiResponse({ status: 200, description: 'Files retrieved successfully' })
   async getFilesByFolder(@Req() req: any) {
-    const folderPath = req.params[0]; // Get everything after 'folder/'
+    const folderPath = req.params.path; // Get everything after 'folder/'
     return this.fileUploadService.getFilesByFolder(folderPath);
   }
 
