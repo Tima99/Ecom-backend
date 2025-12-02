@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsNumber, IsDateString, IsUrl } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  IsDateString,
+  IsUrl,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CarouselStatus } from '../schemas/carousel.schema';
 
@@ -14,18 +22,28 @@ export class CreateCarouselDto {
   @IsUrl()
   imageUrl: string;
 
-  @ApiPropertyOptional({ description: 'Link URL when carousel is clicked', example: 'https://example.com/sale' })
+  @ApiPropertyOptional({
+    description: 'Link URL when carousel is clicked',
+    example: 'https://example.com/sale',
+  })
   @IsOptional()
   @IsString()
   @IsUrl()
   linkUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Carousel description', example: 'Get 50% off on summer collection' })
+  @ApiPropertyOptional({
+    description: 'Carousel description',
+    example: 'Get 50% off on summer collection',
+  })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ enum: CarouselStatus, description: 'Carousel status', example: CarouselStatus.ACTIVE })
+  @ApiPropertyOptional({
+    enum: CarouselStatus,
+    description: 'Carousel status',
+    example: CarouselStatus.ACTIVE,
+  })
   @IsOptional()
   @IsEnum(CarouselStatus)
   status?: CarouselStatus;
@@ -34,12 +52,18 @@ export class CreateCarouselDto {
   @IsNumber()
   order: number;
 
-  @ApiPropertyOptional({ description: 'Start date for scheduled carousel', example: '2024-01-01T00:00:00Z' })
+  @ApiPropertyOptional({
+    description: 'Start date for scheduled carousel',
+    example: '2024-01-01T00:00:00Z',
+  })
   @IsOptional()
   @IsDateString()
   startDate?: string;
 
-  @ApiPropertyOptional({ description: 'End date for scheduled carousel', example: '2024-12-31T23:59:59Z' })
+  @ApiPropertyOptional({
+    description: 'End date for scheduled carousel',
+    example: '2024-12-31T23:59:59Z',
+  })
   @IsOptional()
   @IsDateString()
   endDate?: string;

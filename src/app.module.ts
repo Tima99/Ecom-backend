@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AppConfigModule } from './core/config/config.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { SharedModule } from './modules/shared/shared.module';
 import { HealthModule } from './modules/health/health.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { HealthModule } from './modules/health/health.module';
     HealthModule,
     AuthModule,
     AdminModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

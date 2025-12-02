@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
-  imports: [],
-  exports: [],
+  imports: [FileUploadModule],
+  exports: [FileUploadModule],
 })
 export class SharedModule {}

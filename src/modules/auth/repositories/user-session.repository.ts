@@ -23,24 +23,15 @@ export class UserSessionRepository {
   }
 
   async deactivateSession(sessionId: string): Promise<void> {
-    await this.userSessionModel.updateOne(
-      { sessionId },
-      { isActive: false }
-    );
+    await this.userSessionModel.updateOne({ sessionId }, { isActive: false });
   }
 
   async deactivateAllUserSessions(userId: Types.ObjectId): Promise<void> {
-    await this.userSessionModel.updateMany(
-      { userId },
-      { isActive: false }
-    );
+    await this.userSessionModel.updateMany({ userId }, { isActive: false });
   }
 
   async updateLastAccessed(sessionId: string): Promise<void> {
-    await this.userSessionModel.updateOne(
-      { sessionId },
-      { lastAccessedAt: new Date() }
-    );
+    await this.userSessionModel.updateOne({ sessionId }, { lastAccessedAt: new Date() });
   }
 
   async findExistingDeviceSession(
@@ -68,7 +59,7 @@ export class UserSessionRepository {
         ipAddress,
         lastAccessedAt: new Date(),
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      }
+      },
     );
   }
 }

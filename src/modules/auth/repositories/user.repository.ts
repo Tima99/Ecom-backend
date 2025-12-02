@@ -27,28 +27,19 @@ export class UserRepository {
   async updateLastLogin(userId: Types.ObjectId): Promise<void> {
     await this.userModel.updateOne(
       { _id: userId },
-      { lastLoginAt: new Date(), loginAttempts: 0, lockedUntil: null }
+      { lastLoginAt: new Date(), loginAttempts: 0, lockedUntil: null },
     );
   }
 
   async updateTwoFactorStatus(userId: Types.ObjectId, enabled: boolean): Promise<void> {
-    await this.userModel.updateOne(
-      { _id: userId },
-      { twoFactorEnabled: enabled }
-    );
+    await this.userModel.updateOne({ _id: userId }, { twoFactorEnabled: enabled });
   }
 
   async incrementLoginAttempts(userId: Types.ObjectId): Promise<void> {
-    await this.userModel.updateOne(
-      { _id: userId },
-      { $inc: { loginAttempts: 1 } }
-    );
+    await this.userModel.updateOne({ _id: userId }, { $inc: { loginAttempts: 1 } });
   }
 
   async lockAccount(userId: Types.ObjectId, lockUntil: Date): Promise<void> {
-    await this.userModel.updateOne(
-      { _id: userId },
-      { lockedUntil: lockUntil }
-    );
+    await this.userModel.updateOne({ _id: userId }, { lockedUntil: lockUntil });
   }
 }

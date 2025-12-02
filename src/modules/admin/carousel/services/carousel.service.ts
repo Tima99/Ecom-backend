@@ -68,7 +68,10 @@ export class CarouselService {
       }
     }
 
-    const carousel = await this.carouselRepository.update(new Types.ObjectId(id), updateCarouselDto);
+    const carousel = await this.carouselRepository.update(
+      new Types.ObjectId(id),
+      updateCarouselDto,
+    );
     if (!carousel) {
       throw new NotFoundException('Carousel not found');
     }
