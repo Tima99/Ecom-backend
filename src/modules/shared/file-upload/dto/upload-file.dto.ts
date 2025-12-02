@@ -3,7 +3,10 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { FileType } from '../schemas/file-upload.schema';
 
 export class UploadFileDto {
-  @ApiPropertyOptional({ description: 'Folder path for organizing files', example: 'products/images' })
+  @ApiPropertyOptional({
+    description: 'Folder path for organizing files',
+    example: 'products/images',
+  })
   @IsOptional()
   @IsString()
   folderPath?: string;

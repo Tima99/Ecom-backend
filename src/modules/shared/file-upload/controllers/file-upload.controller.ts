@@ -10,9 +10,17 @@ import {
   UploadedFiles,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiParam,
+} from '@nestjs/swagger';
 import { FileUploadService } from '../services/file-upload.service';
 import { UploadFileDto, FileReferenceDto } from '../dto/upload-file.dto';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
@@ -30,10 +38,7 @@ export class FileUploadController {
   @ApiResponse({ status: 201, description: 'File uploaded successfully' })
   @ApiResponse({ status: 400, description: 'Invalid file or bad request' })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadSingle(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() uploadDto: UploadFileDto,
-  ) {
+  async uploadSingle(@UploadedFile() file: Express.Multer.File, @Body() uploadDto: UploadFileDto) {
     return this.fileUploadService.uploadSingle(file, uploadDto);
   }
 
@@ -59,11 +64,11 @@ export class FileUploadController {
     return this.fileUploadService.getFile(id);
   }
 
-  @Get('folder/:folderPath')
+  @Get('folder/*')
   @ApiOperation({ summary: 'Get files by folder path' })
-  @ApiParam({ name: 'folderPath', description: 'Folder path' })
   @ApiResponse({ status: 200, description: 'Files retrieved successfully' })
-  async getFilesByFolder(@Param('folderPath') folderPath: string) {
+  async getFilesByFolder(@Req() req: any) {
+    const folderPath = req.params[0]; // Get everything after 'folder/'
     return this.fileUploadService.getFilesByFolder(folderPath);
   }
 

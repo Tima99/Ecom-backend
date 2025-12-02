@@ -31,26 +31,18 @@ export class FileUploadRepository {
   }
 
   async incrementRefCount(id: Types.ObjectId): Promise<FileUploadDocument | null> {
-    return this.fileUploadModel.findByIdAndUpdate(
-      id,
-      { $inc: { refCount: 1 } },
-      { new: true }
-    );
+    return this.fileUploadModel.findByIdAndUpdate(id, { $inc: { refCount: 1 } }, { new: true });
   }
 
   async decrementRefCount(id: Types.ObjectId): Promise<FileUploadDocument | null> {
-    return this.fileUploadModel.findByIdAndUpdate(
-      id,
-      { $inc: { refCount: -1 } },
-      { new: true }
-    );
+    return this.fileUploadModel.findByIdAndUpdate(id, { $inc: { refCount: -1 } }, { new: true });
   }
 
   async markAsDeleted(id: Types.ObjectId): Promise<FileUploadDocument | null> {
     return this.fileUploadModel.findByIdAndUpdate(
       id,
       { status: FileStatus.DELETED },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -58,11 +50,14 @@ export class FileUploadRepository {
     return this.fileUploadModel.find({
       refCount: 0,
       status: FileStatus.ACTIVE,
-      createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) } // 24 hours old
+      createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // 24 hours old
     });
   }
 
-  async update(id: Types.ObjectId, updateData: Partial<FileUpload>): Promise<FileUploadDocument | null> {
+  async update(
+    id: Types.ObjectId,
+    updateData: Partial<FileUpload>,
+  ): Promise<FileUploadDocument | null> {
     return this.fileUploadModel.findByIdAndUpdate(id, updateData, { new: true });
   }
 }

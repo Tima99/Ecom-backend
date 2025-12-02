@@ -4,12 +4,18 @@ import { StorageConfig } from '../storage.config';
 import { v2 as cloudinary, UploadApiResponse, UploadApiOptions } from 'cloudinary';
 import 'multer';
 
-
 @Injectable()
 export class CloudinaryAdapter extends StorageAdapter {
   constructor(private storageConfig: StorageConfig) {
     super();
     const config = this.storageConfig.getCloudinaryConfig();
+
+    if (!config.cloudName || !config.apiKey || !config.apiSecret) {
+      throw new Error(
+        'Cloudinary configuration missing. Check CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET',
+      );
+    }
+
     cloudinary.config({
       cloud_name: config.cloudName,
       api_key: config.apiKey,
@@ -22,25 +28,29 @@ export class CloudinaryAdapter extends StorageAdapter {
       const uploadOptions: UploadApiOptions = {
         resource_type: 'auto',
         quality: 'auto:good',
-        fetch_format: 'auto',
+        format: 'jpg',
       };
 
       if (folderPath) {
         uploadOptions.folder = folderPath;
       }
 
-      cloudinary.uploader.upload_stream(
-        uploadOptions,
-        (error: Error | undefined, result: UploadApiResponse | undefined) => {
-          if (error) {
-            reject(error);
-          } else if (result && result.secure_url) {
-            resolve(result.secure_url);
-          } else {
-            reject(new Error('Upload failed: No secure URL returned'));
-          }
-        }
-      ).end(file.buffer);
+      cloudinary.uploader
+        .upload_stream(
+          uploadOptions,
+          (error: Error | undefined, result: UploadApiResponse | undefined) => {
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(error);
+            } else if (result && result.secure_url) {
+              resolve(result.secure_url);
+            } else {
+              console.error('Cloudinary upload failed: No result or secure_url', result);
+              reject(new Error('Upload failed: No secure URL returned'));
+            }
+          },
+        )
+        .end(file.buffer);
     });
   }
 

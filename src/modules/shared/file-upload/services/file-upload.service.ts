@@ -16,7 +16,10 @@ export class FileUploadService {
     private storageService: StorageService,
   ) {}
 
-  async uploadSingle(file: Express.Multer.File, uploadDto: UploadFileDto): Promise<FileUploadDocument> {
+  async uploadSingle(
+    file: Express.Multer.File,
+    uploadDto: UploadFileDto,
+  ): Promise<FileUploadDocument> {
     this.validateFile(file);
 
     const fileUrl = await this.storageService.uploadFile(file, uploadDto.folderPath);
@@ -35,7 +38,10 @@ export class FileUploadService {
     return this.fileUploadRepository.create(fileData);
   }
 
-  async uploadMultiple(files: Express.Multer.File[], uploadDto: UploadFileDto): Promise<FileUploadDocument[]> {
+  async uploadMultiple(
+    files: Express.Multer.File[],
+    uploadDto: UploadFileDto,
+  ): Promise<FileUploadDocument[]> {
     files.forEach(file => this.validateFile(file));
 
     const fileUrls = await this.storageService.uploadMultipleFiles(files, uploadDto.folderPath);

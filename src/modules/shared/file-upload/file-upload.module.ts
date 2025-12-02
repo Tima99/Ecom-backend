@@ -9,9 +9,7 @@ import { StorageModule } from '../../../core/storage/storage.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: FileUpload.name, schema: FileUploadSchema },
-    ]),
+    MongooseModule.forFeature([{ name: FileUpload.name, schema: FileUploadSchema }]),
     MulterModule.register({
       limits: {
         fileSize: 10 * 1024 * 1024, // 10MB
