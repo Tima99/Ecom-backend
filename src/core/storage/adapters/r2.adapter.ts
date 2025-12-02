@@ -6,22 +6,24 @@ import { StorageConfig } from '../storage.config';
 import sharp from 'sharp';
 
 @Injectable()
-export class S3Adapter implements StorageAdapter {
-  private s3Client: S3Client;
+export class R2Adapter extends StorageAdapter {
+  private r2Client: S3Client;
   private bucketName: string;
-  private region: string;
+  private publicUrl: string;
 
   constructor(private storageConfig: StorageConfig) {
-    const config = this.storageConfig.getStorageConfig();
-    this.s3Client = new S3Client({
-      region: config.region,
+    super();
+    const config = this.storageConfig.getR2StorageConfig();
+    this.r2Client = new S3Client({
+      region: 'auto',
+      endpoint: config.endpoint,
       credentials: {
         accessKeyId: config.accessKeyId,
         secretAccessKey: config.secretAccessKey,
       },
     });
     this.bucketName = config.bucketName;
-    this.region = config.region;
+    this.publicUrl = config.publicUrl;
   }
 
   async uploadFile(file: any, folderPath?: string): Promise<string> {
@@ -35,14 +37,13 @@ export class S3Adapter implements StorageAdapter {
       ContentType: file.mimetype,
     });
 
-    await this.s3Client.send(command);
+    await this.r2Client.send(command);
 
-    return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
+    return `${this.publicUrl}/${key}`;
   }
 
   async uploadMultipleFiles(files: any[], folderPath?: string): Promise<string[]> {
     const uploadPromises = files.map(file => this.uploadFile(file, folderPath));
-
     return Promise.all(uploadPromises);
   }
 
@@ -54,7 +55,7 @@ export class S3Adapter implements StorageAdapter {
       Key: key,
     });
 
-    await this.s3Client.send(command);
+    await this.r2Client.send(command);
   }
 
   async getSignedUrl(fileUrl: string, expiresIn: number = 3600): Promise<string> {
@@ -65,7 +66,7 @@ export class S3Adapter implements StorageAdapter {
       Key: key,
     });
 
-    return getSignedUrl(this.s3Client, command, { expiresIn });
+    return getSignedUrl(this.r2Client, command, { expiresIn });
   }
 
   private async processImage(file: any): Promise<Buffer> {
@@ -89,8 +90,6 @@ export class S3Adapter implements StorageAdapter {
   }
 
   private extractKeyFromUrl(fileUrl: string): string {
-    const url = new URL(fileUrl);
-
-    return url.pathname.substring(1);
+    return fileUrl.replace(`${this.publicUrl}/`, '');
   }
 }

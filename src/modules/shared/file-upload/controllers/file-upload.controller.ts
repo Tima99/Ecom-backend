@@ -31,7 +31,7 @@ export class FileUploadController {
   @ApiResponse({ status: 400, description: 'Invalid file or bad request' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadSingle(
-    @UploadedFile() file: any,
+    @UploadedFile() file: Express.Multer.File,
     @Body() uploadDto: UploadFileDto,
   ) {
     return this.fileUploadService.uploadSingle(file, uploadDto);
@@ -44,7 +44,7 @@ export class FileUploadController {
   @ApiResponse({ status: 400, description: 'Invalid files or bad request' })
   @UseInterceptors(FilesInterceptor('files', 10))
   async uploadMultiple(
-    @UploadedFiles() files: any[],
+    @UploadedFiles() files: Express.Multer.File[],
     @Body() uploadDto: UploadFileDto,
   ) {
     return this.fileUploadService.uploadMultiple(files, uploadDto);

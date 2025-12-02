@@ -4,6 +4,7 @@ import { FileUploadRepository } from '../repositories/file-upload.repository';
 import { StorageService } from '../../../../core/storage/services/storage.service';
 import { FileUploadDocument, FileType, FileStatus } from '../schemas/file-upload.schema';
 import { UploadFileDto } from '../dto/upload-file.dto';
+import 'multer';
 
 @Injectable()
 export class FileUploadService {
@@ -15,7 +16,7 @@ export class FileUploadService {
     private storageService: StorageService,
   ) {}
 
-  async uploadSingle(file: any, uploadDto: UploadFileDto): Promise<FileUploadDocument> {
+  async uploadSingle(file: Express.Multer.File, uploadDto: UploadFileDto): Promise<FileUploadDocument> {
     this.validateFile(file);
 
     const fileUrl = await this.storageService.uploadFile(file, uploadDto.folderPath);
@@ -34,7 +35,7 @@ export class FileUploadService {
     return this.fileUploadRepository.create(fileData);
   }
 
-  async uploadMultiple(files: any[], uploadDto: UploadFileDto): Promise<FileUploadDocument[]> {
+  async uploadMultiple(files: Express.Multer.File[], uploadDto: UploadFileDto): Promise<FileUploadDocument[]> {
     files.forEach(file => this.validateFile(file));
 
     const fileUrls = await this.storageService.uploadMultipleFiles(files, uploadDto.folderPath);
@@ -138,7 +139,7 @@ export class FileUploadService {
     }
   }
 
-  private validateFile(file: any): void {
+  private validateFile(file: Express.Multer.File): void {
     if (!file) {
       throw new BadRequestException('No file provided');
     }

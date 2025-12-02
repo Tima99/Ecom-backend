@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import type { StorageAdapter } from '../adapters/storage.adapter';
+import 'multer';
 
 @Injectable()
 export class StorageService {
   constructor(private storageAdapter: StorageAdapter) {}
 
-  async uploadFile(file: any, folderPath?: string): Promise<string> {
+  async uploadFile(file: Express.Multer.File, folderPath?: string): Promise<string> {
     return this.storageAdapter.uploadFile(file, folderPath);
   }
 
-  async uploadMultipleFiles(files: any[], folderPath?: string): Promise<string[]> {
+  async uploadMultipleFiles(files: Express.Multer.File[], folderPath?: string): Promise<string[]> {
     return this.storageAdapter.uploadMultipleFiles(files, folderPath);
   }
 
