@@ -27,4 +27,12 @@ export class AppConfigService {
       url: this.configService.get<string>('DATABASE_URL'),
     };
   }
+
+  get stripeConfig() {
+    return {
+      secretKey: this.configService.get<string>('STRIPE_SECRET_KEY'),
+      publishableKey: this.configService.get<string>('STRIPE_PUBLISHABLE_KEY'),
+      webhookSecret: this.configService.get<string>('STRIPE_WEBHOOK_SECRET'),
+    };
+  }
 }

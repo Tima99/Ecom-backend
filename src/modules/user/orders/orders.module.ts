@@ -5,16 +5,19 @@ import { OrderService } from './services/order.service';
 import { Order, OrderSchema } from './schemas/order.schema';
 import { Cart, CartSchema } from '../cart/schemas/cart.schema';
 import { StripePaymentService } from '../../../core/payment/stripe-payment.service';
+import { OrderRepository } from './repositories/order.repository';
+import { AppConfigModule } from '../../../core/config/config.module';
 
 @Module({
   imports: [
+    AppConfigModule,
     MongooseModule.forFeature([
       { name: Order.name, schema: OrderSchema },
       { name: Cart.name, schema: CartSchema },
     ]),
   ],
   controllers: [OrderController],
-  providers: [OrderService, StripePaymentService],
+  providers: [OrderService, StripePaymentService, OrderRepository],
   exports: [OrderService],
 })
 export class OrdersModule {}

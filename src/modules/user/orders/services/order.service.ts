@@ -1,19 +1,22 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Order, OrderDocument, OrderStatus, PaymentStatus } from '../schemas/order.schema';
+import { OrderDocument, OrderStatus, PaymentStatus } from '../schemas/order.schema';
 import { Cart, CartDocument } from '../../cart/schemas/cart.schema';
 import { CreateOrderDto, ProcessPaymentDto, CreatePaymentIntentDto } from '../dto/order.dto';
-import { StripePaymentService, PaymentIntent } from '../../../../core/payment/stripe-payment.service';
+import {
+  StripePaymentService,
+  PaymentIntent,
+} from '../../../../core/payment/stripe-payment.service';
+import { OrderRepository } from '../repositories/order.repository';
 
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectModel(Order.name)
-    private orderModel: Model<OrderDocument>,
     @InjectModel(Cart.name)
     private cartModel: Model<CartDocument>,
     private stripePaymentService: StripePaymentService,
+    private orderRepository: OrderRepository,
   ) {}
 
   async createOrder(
@@ -28,7 +31,7 @@ export class OrderService {
 
     const orderNumber = this.generateOrderNumber();
 
-    const order = await this.orderModel.create({
+    const order = await this.orderRepository.create({
       userId,
       orderNumber,
       items: cart.items,
@@ -44,8 +47,10 @@ export class OrderService {
     return order;
   }
 
-  async createPaymentIntent(createPaymentIntentDto: CreatePaymentIntentDto): Promise<PaymentIntent> {
-    const order = await this.orderModel.findById(createPaymentIntentDto.orderId);
+  async createPaymentIntent(
+    createPaymentIntentDto: CreatePaymentIntentDto,
+  ): Promise<PaymentIntent> {
+    const order = await this.orderRepository.findById(createPaymentIntentDto.orderId);
 
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -59,34 +64,38 @@ export class OrderService {
   }
 
   async processPayment(orderId: string, paymentDto: ProcessPaymentDto): Promise<OrderDocument> {
-    const order = await this.orderModel.findById(orderId);
+    const order = await this.orderRepository.findById(orderId);
 
     if (!order) {
       throw new NotFoundException('Order not found');
     }
 
     // Confirm payment with Stripe
-    const paymentResult = await this.stripePaymentService.confirmPayment(paymentDto.paymentIntentId);
+    const paymentResult = await this.stripePaymentService.confirmPayment(
+      paymentDto.paymentIntentId,
+    );
 
     if (paymentResult.success && paymentResult.paymentId) {
-      order.paymentStatus = PaymentStatus.COMPLETED;
-      order.status = OrderStatus.CONFIRMED;
-      order.paymentId = paymentResult.paymentId;
+      await this.orderRepository.updatePaymentStatus(orderId, PaymentStatus.COMPLETED);
+      await this.orderRepository.updateOrderStatus(orderId, OrderStatus.CONFIRMED);
+      await this.orderRepository.updatePaymentId(orderId, paymentResult.paymentId);
     } else {
-      order.paymentStatus = PaymentStatus.FAILED;
+      await this.orderRepository.updatePaymentStatus(orderId, PaymentStatus.FAILED);
     }
 
-    await order.save();
-
-    return order;
+    const updatedOrder = await this.orderRepository.findById(orderId);
+    if (!updatedOrder) {
+      throw new NotFoundException('Order not found');
+    }
+    return updatedOrder;
   }
 
   async getUserOrders(userId: Types.ObjectId): Promise<OrderDocument[]> {
-    return this.orderModel.find({ userId }).sort({ createdAt: -1 });
+    return this.orderRepository.findByUserId(userId);
   }
 
   async getOrderById(orderId: string, userId: Types.ObjectId): Promise<OrderDocument> {
-    const order = await this.orderModel.findOne({ _id: orderId, userId });
+    const order = await this.orderRepository.findByUserIdAndOrderId(userId, orderId);
 
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -96,7 +105,7 @@ export class OrderService {
   }
 
   async updateOrderStatus(orderId: string, status: OrderStatus): Promise<OrderDocument> {
-    const order = await this.orderModel.findByIdAndUpdate(orderId, { status }, { new: true });
+    const order = await this.orderRepository.updateOrderStatus(orderId, status);
 
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -106,11 +115,21 @@ export class OrderService {
   }
 
   async addTrackingNumber(orderId: string, trackingNumber: string): Promise<OrderDocument> {
-    const order = await this.orderModel.findByIdAndUpdate(
-      orderId,
-      { trackingNumber, status: OrderStatus.SHIPPED },
-      { new: true },
-    );
+    const order = await this.orderRepository.updateTrackingNumber(orderId, trackingNumber);
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return order;
+  }
+
+  async findByPaymentId(paymentId: string): Promise<OrderDocument | null> {
+    return this.orderRepository.findByPaymentId(paymentId);
+  }
+
+  async updatePaymentStatus(orderId: string, paymentStatus: PaymentStatus): Promise<OrderDocument> {
+    const order = await this.orderRepository.updatePaymentStatus(orderId, paymentStatus);
 
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -122,6 +141,4 @@ export class OrderService {
   private generateOrderNumber(): string {
     return `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
   }
-
-
 }

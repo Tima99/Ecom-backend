@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { AppConfigService } from '../config/config.service';
 import Stripe from 'stripe';
 
 export interface PaymentIntent {
@@ -20,22 +20,20 @@ export interface PaymentResult {
 export class StripePaymentService {
   private stripe: Stripe;
 
-  constructor(private configService: ConfigService) {
-    const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
+  constructor(private configService: AppConfigService) {
+    const { secretKey } = this.configService.stripeConfig;
     if (!secretKey) {
       throw new Error('STRIPE_SECRET_KEY is required');
     }
     this.stripe = new Stripe(secretKey);
   }
 
-  async createPaymentIntent(amount: number, currency = 'usd'): Promise<PaymentIntent> {
+  async createPaymentIntent(amount: number, currency = 'inr'): Promise<PaymentIntent> {
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency,
-        automatic_payment_methods: {
-          enabled: true,
-        },
+        payment_method_types: ['card'],
       });
 
       return {
@@ -52,12 +50,12 @@ export class StripePaymentService {
 
   async confirmPayment(paymentIntentId: string): Promise<PaymentResult> {
     try {
-      const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
-      
+      const paymentIntent = await this.stripe.paymentIntents.confirm(paymentIntentId);
+
       return {
         success: paymentIntent.status === 'succeeded',
         paymentId: paymentIntent.id,
-        error: paymentIntent.status !== 'succeeded' ? 'Payment failed' : undefined,
+        error: paymentIntent.status !== 'succeeded' ? `Payment ${paymentIntent.status}` : undefined,
       };
     } catch (error) {
       return {
