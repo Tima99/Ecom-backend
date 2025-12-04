@@ -210,18 +210,22 @@ export class NotificationService {
     }
 
     let tokensToSend: string[] = [];
+    let totalTokensFound = 0;
 
     if (notificationLog.deviceTokens && notificationLog.deviceTokens.length > 0) {
+      totalTokensFound = notificationLog.deviceTokens.length;
       tokensToSend = await this.getActiveTokens(notificationLog.deviceTokens);
     } else {
+      const allUserTokens: string[] = [];
       for (const userId of notificationLog.targetUsers) {
         const userTokens = await this.getUserDeviceTokens(userId.toString());
-        tokensToSend.push(...userTokens);
+        allUserTokens.push(...userTokens);
       }
-      tokensToSend = await this.getActiveTokens(tokensToSend);
+      totalTokensFound = allUserTokens.length;
+      tokensToSend = await this.getActiveTokens(allUserTokens);
     }
 
-    const blacklistedCount = (notificationLog.deviceTokens?.length || 0) - tokensToSend.length;
+    const blacklistedCount = totalTokensFound - tokensToSend.length;
     notificationLog.blacklistedTokensSkipped = blacklistedCount;
 
     if (tokensToSend.length === 0) {
