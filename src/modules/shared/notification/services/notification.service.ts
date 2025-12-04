@@ -96,6 +96,49 @@ export class NotificationService {
     return tokens.map(dt => dt.token);
   }
 
+  async recordTokenFailure(token: string, reason: string): Promise<void> {
+    const notification = await this.notificationModel.findOne({
+      'deviceTokens.token': token
+    });
+
+    if (notification) {
+      const tokenIndex = notification.deviceTokens.findIndex(dt => dt.token === token);
+      if (tokenIndex !== -1) {
+        const deviceToken = notification.deviceTokens[tokenIndex];
+        
+        if (!deviceToken.failureCount) {
+          deviceToken.failureCount = 0;
+        }
+        deviceToken.failureCount++;
+        deviceToken.lastFailureReason = reason;
+        deviceToken.lastFailureAt = new Date();
+
+        if (deviceToken.failureCount >= 3) {
+          deviceToken.isActive = false;
+        }
+
+        await notification.save();
+      }
+    }
+  }
+
+  async getActiveTokens(tokens: string[]): Promise<string[]> {
+    const notifications = await this.notificationModel.find({
+      'deviceTokens.token': { $in: tokens }
+    });
+
+    const activeTokens: string[] = [];
+    for (const notification of notifications) {
+      for (const deviceToken of notification.deviceTokens) {
+        if (tokens.includes(deviceToken.token) && deviceToken.isActive) {
+          activeTokens.push(deviceToken.token);
+        }
+      }
+    }
+
+    return activeTokens;
+  }
+
   @Cron(CronExpression.EVERY_MINUTE)
   async processScheduledNotifications(): Promise<void> {
     const scheduledNotifications = await this.notificationLogModel.find({
@@ -166,29 +209,53 @@ export class NotificationService {
       return this.firebaseService.sendToTopic(notificationLog.topic, payload);
     }
 
+    let tokensToSend: string[] = [];
+
     if (notificationLog.deviceTokens && notificationLog.deviceTokens.length > 0) {
-      if (notificationLog.deviceTokens.length === 1) {
-        return this.firebaseService.sendToDevice(notificationLog.deviceTokens[0], payload);
-      } else {
-        return this.firebaseService.sendToMultipleDevices(notificationLog.deviceTokens, payload);
+      tokensToSend = await this.getActiveTokens(notificationLog.deviceTokens);
+    } else {
+      for (const userId of notificationLog.targetUsers) {
+        const userTokens = await this.getUserDeviceTokens(userId.toString());
+        tokensToSend.push(...userTokens);
       }
+      tokensToSend = await this.getActiveTokens(tokensToSend);
     }
 
-    // Get device tokens from target users
-    const deviceTokens: string[] = [];
-    for (const userId of notificationLog.targetUsers) {
-      const userTokens = await this.getUserDeviceTokens(userId.toString());
-      deviceTokens.push(...userTokens);
-    }
+    const blacklistedCount = (notificationLog.deviceTokens?.length || 0) - tokensToSend.length;
+    notificationLog.blacklistedTokensSkipped = blacklistedCount;
 
-    if (deviceTokens.length === 0) {
+    if (tokensToSend.length === 0) {
       return {
         success: false,
-        error: 'No device tokens found for target users',
+        error: 'No active device tokens found',
       };
     }
 
-    return this.firebaseService.sendToMultipleDevices(deviceTokens, payload);
+    let result: NotificationResult;
+    if (tokensToSend.length === 1) {
+      result = await this.firebaseService.sendToDevice(tokensToSend[0], payload);
+    } else {
+      result = await this.firebaseService.sendToMultipleDevices(tokensToSend, payload);
+    }
+
+    if (result.failedTokens && result.failedTokens.length > 0) {
+      const failedTokenDetails: { token: string; reason: string }[] = [];
+      
+      for (const failedToken of result.failedTokens) {
+        await this.recordTokenFailure(failedToken, result.error || 'Send failed');
+        failedTokenDetails.push({
+          token: failedToken,
+          reason: result.error || 'Send failed'
+        });
+      }
+      
+      notificationLog.failedTokenDetails = failedTokenDetails;
+      notificationLog.successTokens = tokensToSend.filter(t => !result.failedTokens?.includes(t));
+    } else {
+      notificationLog.successTokens = tokensToSend;
+    }
+
+    return result;
   }
 
   private async createNotificationLog(dto: SendNotificationDto): Promise<NotificationLogDocument> {

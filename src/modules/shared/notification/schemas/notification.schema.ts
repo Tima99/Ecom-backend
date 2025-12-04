@@ -23,6 +23,15 @@ export class DeviceToken {
 
   @Prop()
   deviceInfo?: string;
+
+  @Prop({ default: 0 })
+  failureCount?: number;
+
+  @Prop()
+  lastFailureReason?: string;
+
+  @Prop()
+  lastFailureAt?: Date;
 }
 
 @Schema({ timestamps: true })
@@ -75,11 +84,20 @@ export class NotificationLog {
   @Prop({ type: [String] })
   failedTokens?: string[];
 
+  @Prop({ type: [String] })
+  successTokens?: string[];
+
+  @Prop({ type: [{ token: String, reason: String }] })
+  failedTokenDetails?: { token: string; reason: string }[];
+
   @Prop({ default: 0 })
   successCount: number;
 
   @Prop({ default: 0 })
   failureCount: number;
+
+  @Prop({ default: 0 })
+  blacklistedTokensSkipped?: number;
 }
 
 @Schema({ timestamps: true })
