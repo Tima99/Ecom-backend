@@ -1,7 +1,8 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsArray, IsObject, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { ProductStatus } from '../schemas/product.schema';
 import { Type } from 'class-transformer';
+import { IsArray, IsEnum, IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
+
+import { ProductStatus } from '../schemas/product.schema';
 
 export class CreateProductDto {
   @ApiProperty({ description: 'Product name', example: 'iPhone 15 Pro' })

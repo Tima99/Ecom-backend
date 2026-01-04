@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+
 import { TwoFactorAuth, TwoFactorAuthDocument } from '../schemas/two-factor-auth.schema';
 
 @Injectable()

@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import type { StorageAdapter } from '../adapters/storage.adapter';
 import 'multer';
+
+import { Injectable } from '@nestjs/common';
+
+import type { StorageAdapter } from '../adapters/storage.adapter';
 
 @Injectable()
 export class StorageService {

@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Req, UseGuards, Get, Delete, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
-import { AuthService } from '../services/auth.service';
-import { LoginDto, VerifyTwoFactorDto, ToggleTwoFactorDto } from '../dto/login.dto';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+
 import { CurrentUser } from '../decorators/current-user.decorator';
+import { LoginDto, ToggleTwoFactorDto, VerifyTwoFactorDto } from '../dto/login.dto';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { AuthService } from '../services/auth.service';
 
 @Controller('auth')
 export class AuthLoginController {

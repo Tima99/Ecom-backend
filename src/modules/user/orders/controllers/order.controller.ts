@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { OrderService } from '../services/order.service';
-import { CreateOrderDto, ProcessPaymentDto, CreatePaymentIntentDto } from '../dto/order.dto';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { CurrentUser } from '../../../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { CreateOrderDto, CreatePaymentIntentDto, ProcessPaymentDto } from '../dto/order.dto';
+import { OrderService } from '../services/order.service';
 
 @ApiTags('User - Orders')
 @ApiBearerAuth()

@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { StorageAdapter } from './storage.adapter';
-import { StorageConfig } from '../storage.config';
-import { v2 as cloudinary, UploadApiResponse, UploadApiOptions } from 'cloudinary';
 import 'multer';
+
+import { Injectable } from '@nestjs/common';
+import { UploadApiOptions, UploadApiResponse, v2 as cloudinary } from 'cloudinary';
+
+import { StorageConfig } from '../storage.config';
+import { StorageAdapter } from './storage.adapter';
 
 @Injectable()
 export class CloudinaryAdapter extends StorageAdapter {

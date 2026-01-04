@@ -1,20 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
-import { CarouselService } from '../services/carousel.service';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { CarouselQueryDto } from '../dto/carousel-query.dto';
 import { CreateCarouselDto } from '../dto/create-carousel.dto';
 import { UpdateCarouselDto } from '../dto/update-carousel.dto';
-import { CarouselQueryDto } from '../dto/carousel-query.dto';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { CarouselService } from '../services/carousel.service';
 
 @ApiTags('Admin - Carousel Management')
 @ApiBearerAuth()

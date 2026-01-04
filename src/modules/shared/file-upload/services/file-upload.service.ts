@@ -1,10 +1,12 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { Types } from 'mongoose';
-import { FileUploadRepository } from '../repositories/file-upload.repository';
-import { StorageService } from '../../../../core/storage/services/storage.service';
-import { FileUploadDocument, FileType, FileStatus } from '../schemas/file-upload.schema';
-import { UploadFileDto } from '../dto/upload-file.dto';
 import 'multer';
+
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Types } from 'mongoose';
+
+import { StorageService } from '../../../../core/storage/services/storage.service';
+import { UploadFileDto } from '../dto/upload-file.dto';
+import { FileUploadRepository } from '../repositories/file-upload.repository';
+import { FileStatus, FileType, FileUploadDocument } from '../schemas/file-upload.schema';
 
 @Injectable()
 export class FileUploadService {

@@ -1,22 +1,20 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
-  IsString,
-  IsOptional,
   IsArray,
-  IsEnum,
   IsBoolean,
   IsDateString,
+  IsEnum,
   IsObject,
+  IsOptional,
+  IsString,
   ValidateNested,
-  IsNumber,
-  Min,
-  Max,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import {
+  DeviceType,
   NotificationProvider,
   NotificationType,
-  DeviceType,
 } from '../../../../types/notification.types';
 
 export class NotificationPayloadDto {

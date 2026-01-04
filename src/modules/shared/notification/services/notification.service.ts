@@ -1,21 +1,22 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { Model, Types } from 'mongoose';
+
+import { FirebaseService } from '../../../../core/firebase/firebase.service';
+import {
+  DeviceType,
+  NotificationProvider,
+  NotificationResult,
+  NotificationStatus,
+} from '../../../../types/notification.types';
+import { RegisterDeviceDto, SendNotificationDto } from '../dto/notification.dto';
 import {
   Notification,
   NotificationDocument,
   NotificationLog,
   NotificationLogDocument,
 } from '../schemas/notification.schema';
-import { FirebaseService } from '../../../../core/firebase/firebase.service';
-import { SendNotificationDto, RegisterDeviceDto } from '../dto/notification.dto';
-import {
-  NotificationProvider,
-  NotificationStatus,
-  NotificationResult,
-  DeviceType,
-} from '../../../../types/notification.types';
 
 @Injectable()
 export class NotificationService {
@@ -98,14 +99,14 @@ export class NotificationService {
 
   async recordTokenFailure(token: string, reason: string): Promise<void> {
     const notification = await this.notificationModel.findOne({
-      'deviceTokens.token': token
+      'deviceTokens.token': token,
     });
 
     if (notification) {
       const tokenIndex = notification.deviceTokens.findIndex(dt => dt.token === token);
       if (tokenIndex !== -1) {
         const deviceToken = notification.deviceTokens[tokenIndex];
-        
+
         if (!deviceToken.failureCount) {
           deviceToken.failureCount = 0;
         }
@@ -124,7 +125,7 @@ export class NotificationService {
 
   async getActiveTokens(tokens: string[]): Promise<string[]> {
     const notifications = await this.notificationModel.find({
-      'deviceTokens.token': { $in: tokens }
+      'deviceTokens.token': { $in: tokens },
     });
 
     const activeTokens: string[] = [];
@@ -182,7 +183,7 @@ export class NotificationService {
       await notificationLog.save();
       return result;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       notificationLog.status = NotificationStatus.FAILED;
       notificationLog.error = error.message;
       await notificationLog.save();
@@ -244,15 +245,15 @@ export class NotificationService {
 
     if (result.failedTokens && result.failedTokens.length > 0) {
       const failedTokenDetails: { token: string; reason: string }[] = [];
-      
+
       for (const failedToken of result.failedTokens) {
         await this.recordTokenFailure(failedToken, result.error || 'Send failed');
         failedTokenDetails.push({
           token: failedToken,
-          reason: result.error || 'Send failed'
+          reason: result.error || 'Send failed',
         });
       }
-      
+
       notificationLog.failedTokenDetails = failedTokenDetails;
       notificationLog.successTokens = tokensToSend.filter(t => !result.failedTokens?.includes(t));
     } else {

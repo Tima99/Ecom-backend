@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { FileUpload, FileUploadDocument, FileStatus } from '../schemas/file-upload.schema';
+
+import { FileStatus, FileUpload, FileUploadDocument } from '../schemas/file-upload.schema';
 
 @Injectable()
 export class FileUploadRepository {

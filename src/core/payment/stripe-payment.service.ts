@@ -1,6 +1,7 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { AppConfigService } from '../config/config.service';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
+
+import { AppConfigService } from '../config/config.service';
 
 export interface PaymentIntent {
   id: string;
