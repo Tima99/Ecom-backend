@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
+
+import { CreateProductDto, ProductQueryDto, UpdateProductDto } from '../dto/product.dto';
 import { ProductRepository } from '../repositories/product.repository';
-import { CreateProductDto, UpdateProductDto, ProductQueryDto } from '../dto/product.dto';
 import { ProductDocument, ProductStatus } from '../schemas/product.schema';
 
 @Injectable()

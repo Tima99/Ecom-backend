@@ -1,11 +1,12 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Request, Response, NextFunction } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { NextFunction, Request, Response } from 'express';
 import { Types } from 'mongoose';
+
+import { AuthenticatedUser } from '../../../types/jwt.types';
 import { UserRepository } from '../repositories/user.repository';
 import { UserSessionRepository } from '../repositories/user-session.repository';
-import { JwtPayload, AuthenticatedUser } from '../../../types/jwt.types';
 
 interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUser;

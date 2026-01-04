@@ -1,5 +1,6 @@
-import { IsOptional, IsString, IsEnum } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+
 import { FileType } from '../schemas/file-upload.schema';
 
 export class UploadFileDto {

@@ -1,6 +1,7 @@
-import { IsOptional, IsEnum, IsString, IsNumber, Min } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+
 import { CarouselStatus } from '../schemas/carousel.schema';
 
 export class CarouselQueryDto {

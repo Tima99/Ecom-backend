@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { CarouselRepository } from '../repositories/carousel.repository';
+
+import { CarouselQueryDto } from '../dto/carousel-query.dto';
 import { CreateCarouselDto } from '../dto/create-carousel.dto';
 import { UpdateCarouselDto } from '../dto/update-carousel.dto';
-import { CarouselQueryDto } from '../dto/carousel-query.dto';
+import { CarouselRepository } from '../repositories/carousel.repository';
 import { CarouselDocument } from '../schemas/carousel.schema';
 
 @Injectable()

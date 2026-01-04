@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { FirebaseService } from '../../../../core/firebase/firebase.service';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+
 import { AppConfigService } from '../../../../core/config/config.service';
+import { FirebaseService } from '../../../../core/firebase/firebase.service';
 
 @ApiTags('Debug')
 @Controller('debug')

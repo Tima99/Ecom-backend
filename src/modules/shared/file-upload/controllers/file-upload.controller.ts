@@ -1,29 +1,29 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Param,
   Body,
-  UseInterceptors,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
   UploadedFile,
   UploadedFiles,
   UseGuards,
-  Query,
-  Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
   ApiConsumes,
+  ApiOperation,
   ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
-import { FileUploadService } from '../services/file-upload.service';
-import { UploadFileDto, FileReferenceDto } from '../dto/upload-file.dto';
+
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { UploadFileDto } from '../dto/upload-file.dto';
+import { FileUploadService } from '../services/file-upload.service';
 
 @ApiTags('File Upload')
 @ApiBearerAuth()

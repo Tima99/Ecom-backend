@@ -1,9 +1,10 @@
-import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { NotificationService } from '../services/notification.service';
-import { SendNotificationDto, RegisterDeviceDto } from '../dto/notification.dto';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { CurrentUser } from '../../../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { RegisterDeviceDto, SendNotificationDto } from '../dto/notification.dto';
+import { NotificationService } from '../services/notification.service';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()

@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
-import { NotificationController } from './controllers/notification.controller';
+
+import { AppConfigModule } from '../../../core/config/config.module';
+import { FirebaseService } from '../../../core/firebase/firebase.service';
 import { DebugController } from './controllers/debug.controller';
-import { NotificationService } from './services/notification.service';
+import { NotificationController } from './controllers/notification.controller';
 import {
   Notification,
-  NotificationSchema,
   NotificationLog,
   NotificationLogSchema,
+  NotificationSchema,
 } from './schemas/notification.schema';
-import { FirebaseService } from '../../../core/firebase/firebase.service';
-import { AppConfigModule } from '../../../core/config/config.module';
+import { NotificationService } from './services/notification.service';
 
 @Module({
   imports: [

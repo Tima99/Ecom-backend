@@ -1,24 +1,24 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { EmailModule } from '../../core/email/email.module';
+import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
+import { PassportModule } from '@nestjs/passport';
 
+import { EmailModule } from '../../core/email/email.module';
+import { AuthLoginController } from './controllers/auth.login.controller';
 import { AuthSignupController } from './controllers/auth.signup.controller';
 import { AuthVerifyController } from './controllers/auth.verify.controller';
-import { AuthLoginController } from './controllers/auth.login.controller';
 import { EmailVerificationRepository } from './repositories/email-verification.repository';
+import { TwoFactorAuthRepository } from './repositories/two-factor-auth.repository';
 import { UserRepository } from './repositories/user.repository';
 import { UserSessionRepository } from './repositories/user-session.repository';
-import { TwoFactorAuthRepository } from './repositories/two-factor-auth.repository';
 import { EmailVerification, EmailVerificationSchema } from './schemas/email-verification.schema';
+import { TwoFactorAuth, TwoFactorAuthSchema } from './schemas/two-factor-auth.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import { UserSession, UserSessionSchema } from './schemas/user-session.schema';
-import { TwoFactorAuth, TwoFactorAuthSchema } from './schemas/two-factor-auth.schema';
+import { AuthService } from './services/auth.service';
 import { SignupService } from './services/signup.service';
 import { VerifyEmailService } from './services/verify-email.service';
-import { AuthService } from './services/auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({

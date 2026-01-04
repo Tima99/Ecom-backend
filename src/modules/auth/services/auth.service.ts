@@ -1,15 +1,16 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import * as otpGenerator from 'otp-generator';
 import { Types } from 'mongoose';
-import { UserRepository } from '../repositories/user.repository';
-import { UserSessionRepository } from '../repositories/user-session.repository';
-import { TwoFactorAuthRepository } from '../repositories/two-factor-auth.repository';
-import { LoginDto, VerifyTwoFactorDto, ToggleTwoFactorDto } from '../dto/login.dto';
+import * as otpGenerator from 'otp-generator';
+
 import { EmailService } from '../../../core/email/email.service';
 import { JwtPayload } from '../../../types/jwt.types';
+import { LoginDto, ToggleTwoFactorDto, VerifyTwoFactorDto } from '../dto/login.dto';
+import { TwoFactorAuthRepository } from '../repositories/two-factor-auth.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { UserSessionRepository } from '../repositories/user-session.repository';
 
 @Injectable()
 export class AuthService {

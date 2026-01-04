@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Carousel, CarouselDocument, CarouselStatus } from '../schemas/carousel.schema';
+
+import { CarouselQueryDto } from '../dto/carousel-query.dto';
 import { CreateCarouselDto } from '../dto/create-carousel.dto';
 import { UpdateCarouselDto } from '../dto/update-carousel.dto';
-import { CarouselQueryDto } from '../dto/carousel-query.dto';
+import { Carousel, CarouselDocument, CarouselStatus } from '../schemas/carousel.schema';
 
 @Injectable()
 export class CarouselRepository {

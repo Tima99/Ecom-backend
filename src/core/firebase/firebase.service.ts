@@ -1,7 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { AppConfigService } from '../config/config.service';
 import * as admin from 'firebase-admin';
+
 import { NotificationPayload, NotificationResult } from '../../types/notification.types';
+import { AppConfigService } from '../config/config.service';
 
 @Injectable()
 export class FirebaseService implements OnModuleInit {

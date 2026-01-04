@@ -1,8 +1,8 @@
-import tseslint from 'typescript-eslint';
-import prettier from 'eslint-config-prettier';
-import unusedImports from 'eslint-plugin-unused-imports';
-import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import unusedImports from 'eslint-plugin-unused-imports';
+import tseslint from 'typescript-eslint';
 
 export default [
   js.configs.recommended,
